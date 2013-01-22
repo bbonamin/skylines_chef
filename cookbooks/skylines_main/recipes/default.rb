@@ -1,7 +1,7 @@
-execute "keep system up to date" do
-  command "sudo apt-get update && sudo apt-get upgrade && touch tmp/system_updated_by_chef"
-  creates 'tmp/system_updated_by_chef'
-end
+# execute "keep system up to date" do
+#   command "sudo apt-get update && sudo apt-get upgrade -y && touch tmp/system_updated_by_chef"
+#   creates 'tmp/system_updated_by_chef'
+# end
 
 %w(libxml2-dev libxslt1-dev python-dev python-setuptools postgresql 
   postgresql-9.1-postgis postgresql-contrib-9.1 postgresql-server-dev-9.1 
@@ -44,15 +44,15 @@ execute "tg.devtools installation" do
   command "sudo easy_install tg.devtools"
 end
 
-execute "setup app development env" do
-  cwd "/vagrant"
-  command "paster setup-app development.ini"
-end
+# execute "setup app development env" do
+#   cwd "/vagrant"
+#   command "paster setup-app development.ini"
+# end
 
-execute "import assets" do 
-  cwd "/vagrant"
-  command "python import_airspaces.py development.ini assets/airspace/airspace_list.txt assets/airspace/airspace_blacklist.txt"
-end
+# execute "import assets" do 
+#   cwd "/vagrant"
+#   command "python import_airspaces.py development.ini assets/airspace/airspace_list.txt assets/airspace/airspace_blacklist.txt"
+# end
 
 service "ufw" do
   action :disable
