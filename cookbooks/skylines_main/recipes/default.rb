@@ -1,36 +1,32 @@
 # Install all required dependencies
-
-%w(libxml2-dev libxslt1-dev python-dev python-setuptools postgresql 
-  postgresql-9.1-postgis postgresql-contrib-9.1 postgresql-server-dev-9.1 
-  g++ git libsdl1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libboost-system-dev 
-  make curl libcurl4-openssl-dev python-mapscript python-gdal).each do |pkg|
-  package pkg
-end
-
-
-execute "setup python dependencies" do
-  cwd "/vagrant"
-  command "sudo python setup.py develop"
-end
-
-## Database bootstrapping
-# pg_user "vagrant" do
-#   privileges :superuser => true, :createdb => false, :login => true
+# %w(libxml2-dev libxslt1-dev python-dev python-setuptools postgresql 
+#   postgresql-9.1-postgis postgresql-contrib-9.1 postgresql-server-dev-9.1 
+#   g++ git libsdl1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libboost-system-dev 
+#   make curl libcurl4-openssl-dev python-mapscript python-gdal).each do |pkg|
+#   package pkg
 # end
 
+
+# execute "setup python dependencies" do
+#   cwd "/vagrant"
+#   command "sudo python setup.py develop"
+# end
+
+## Database bootstrapping
 execute "create vagrant postgresql user" do
   user "postgres"
-  exists = ["psql -c \"SELECT usename FROM pg_user WHERE usename='vagrant'\""]
-  exists.push "| grep vagrant"
-  exists = exists.join ' '
-  command "createuser -sw vagrant"
-  only_if exists 
+  exists = %(psql -c "SELECT usename FROM pg_user WHERE usename='vagrant'" | grep -c vagrant)
+  # command "createuser -sw vagrant"
+  command "echo whoami"
+  not_if exists 
 end
  
  
-# execute "create-database" do
-#     exists = <<-EOH
-#     psql -U postgres -c "select * from pg_database WHERE datname='#{node[:dbname]}'" | grep -c #{node[:dbname]}
+# execute "create skylines database" do
+#   exists = ["psql -c \"SELECT datname FROM pg_database WHERE datname='skylines'\""]
+#   exists.push "| grep skylines"
+#   exists = exists.join ' '
+#     psql -U postgres -c "select * from pg_database WHERE datname='sky'" | grep -c #{node[:dbname]}
 #     EOH
 #     command "createdb -U postgres -O #{node[:dbuser]} -E utf8 -T template0 #{node[:dbname]}"
 #     not_if exists
