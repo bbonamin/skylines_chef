@@ -1,7 +1,4 @@
-# execute "keep system up to date" do
-#   command "sudo apt-get update && sudo apt-get upgrade -y && touch tmp/system_updated_by_chef"
-#   creates 'tmp/system_updated_by_chef'
-# end
+# Install all required dependencies
 
 %w(libxml2-dev libxslt1-dev python-dev python-setuptools postgresql 
   postgresql-9.1-postgis postgresql-contrib-9.1 postgresql-server-dev-9.1 
@@ -10,9 +7,33 @@
   package pkg
 end
 
-# execute "setup python dependencies" do
-#   cwd "/vagrant"
-#   command "sudo python setup.py develop"
+
+execute "setup python dependencies" do
+  cwd "/vagrant"
+  command "sudo python setup.py develop"
+end
+
+## Database bootstrapping
+# pg_user "vagrant" do
+#   privileges :superuser => true, :createdb => false, :login => true
+# end
+
+execute "create vagrant postgresql user" do
+  user "postgres"
+  exists = ["psql -c \"SELECT usename FROM pg_user WHERE usename='vagrant'\""]
+  exists.push "| grep vagrant"
+  exists = exists.join ' '
+  command "createuser -sw vagrant"
+  only_if exists 
+end
+ 
+ 
+# execute "create-database" do
+#     exists = <<-EOH
+#     psql -U postgres -c "select * from pg_database WHERE datname='#{node[:dbname]}'" | grep -c #{node[:dbname]}
+#     EOH
+#     command "createdb -U postgres -O #{node[:dbuser]} -E utf8 -T template0 #{node[:dbname]}"
+#     not_if exists
 # end
 
 # execute "setup database prerequisites" do
